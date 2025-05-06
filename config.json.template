@@ -10,7 +10,7 @@
         "clients": [
           {
             "id": "USER_UUID",
-            "flow": "xtls-rprx-direct",
+            "flow": "xtls-rprx-vision",
             "level": 0,
             "email": "user@example.com"
           }

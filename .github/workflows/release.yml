@@ -41,6 +41,16 @@ jobs:
                 volumes:
                   - ./certs:/etc/xray
             ```
+
+            ## 客户端配置
+            
+            - 服务器地址: 您的服务器 IP 或域名
+            - 端口: 443
+            - 协议: VLESS
+            - UUID: 从容器日志获取
+            - 流控: xtls-rprx-vision
+            - 安全性: TLS
+            - 网络: TCP
             
             详细使用方法请参考README.md
           draft: false

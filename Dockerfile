@@ -62,7 +62,7 @@ echo "VLESS Server Configuration:" \n\
 echo "Protocol: VLESS" \n\
 echo "Port: 443" \n\
 echo "UUID: $UUID" \n\
-echo "Flow: xtls-rprx-direct" \n\
+echo "Flow: xtls-rprx-vision" \n\
 echo "Network: tcp" \n\
 echo "Security: tls" \n\
 echo "=============================================" \n\

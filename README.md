@@ -88,7 +88,7 @@ docker logs vless-server
 - 端口: 443
 - 协议: VLESS
 - UUID: 在服务器启动日志中查看，或者查看 `certs/uuid.txt` 文件
-- 流控: xtls-rprx-direct
+- 流控: xtls-rprx-vision
 - 安全性: TLS
 - 网络: TCP
 
