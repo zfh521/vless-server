@@ -54,8 +54,20 @@ else \n\
   echo $UUID > /etc/xray/uuid.txt \n\
 fi \n\
 \n\
+# Check if SNI is provided, otherwise use "vless-server" \n\
+if [ -f /etc/xray/sni.txt ]; then \n\
+  echo "Using provided SNI from volume..." \n\
+  SNI=$(cat /etc/xray/sni.txt) \n\
+else \n\
+  # Try to get hostname, fallback to "vless-server" \n\
+  SNI=$(hostname -f 2>/dev/null || echo "vless-server") \n\
+  echo "Using hostname as SNI: $SNI" \n\
+  # Save the SNI for reference \n\
+  echo $SNI > /etc/xray/sni.txt \n\
+fi \n\
+\n\
 # Set up configuration \n\
-sed "s/USER_UUID/$UUID/g" /usr/local/etc/xray/config.json.template > /usr/local/etc/xray/config.json \n\
+sed -e "s/USER_UUID/$UUID/g" -e "s/SERVER_SNI/$SNI/g" /usr/local/etc/xray/config.json.template > /usr/local/etc/xray/config.json \n\
 \n\
 echo "=============================================" \n\
 echo "VLESS Server Configuration:" \n\
@@ -65,6 +77,7 @@ echo "UUID: $UUID" \n\
 echo "Flow: xtls-rprx-vision" \n\
 echo "Network: tcp" \n\
 echo "Security: tls" \n\
+echo "SNI: $SNI" \n\
 echo "=============================================" \n\
 echo "Starting Xray server..." \n\
 exec /usr/local/bin/xray run -config /usr/local/etc/xray/config.json' > /root/start.sh && \

@@ -24,8 +24,9 @@
       },
       "streamSettings": {
         "network": "tcp",
-        "security": "tls",
+        "security": "xtls",
         "tlsSettings": {
+          "serverName": "SERVER_SNI",
           "alpn": [
             "http/1.1"
           ],

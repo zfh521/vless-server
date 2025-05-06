@@ -10,6 +10,7 @@
 - 容器启动时自动生成 UUID
 - 自动生成自签名 SSL 证书
 - 自动化 GitHub Actions 构建和发布
+- 自动配置 SNI (Server Name Indication)
 
 ## 前提条件
 
@@ -66,19 +67,72 @@ mkdir -p certs
 ./generate_uuid.sh
 ```
 
-4. 构建并启动服务:
+4. (可选) 设置自定义 SNI:
+
+```bash
+echo "your-domain.com" > certs/sni.txt
+```
+
+5. 构建并启动服务:
 
 ```bash
 docker-compose up -d
 ```
 
-5. 查看日志和连接详情:
+6. 查看日志和连接详情:
 
 ```bash
 docker logs vless-server
 ```
 
-6. 服务将在端口 443 上运行，并在启动时显示连接信息。
+7. 服务将在端口 443 上运行，并在启动时显示连接信息。
+
+## 测试服务可用性
+
+我们提供了多种工具来测试VLESS服务器的可用性：
+
+### 1. 基本连接测试
+
+运行以下命令执行基本的连接测试，验证服务是否正常运行：
+
+```bash
+./test_connection.sh
+```
+
+这将检查：
+- 服务器容器是否运行
+- 443端口是否开放
+- Xray进程是否正常
+- 基本的TCP连接是否成功
+
+### 2. 生成客户端配置
+
+使用以下命令生成可用于各种客户端的配置文件：
+
+```bash
+./generate_client_config.sh
+```
+
+这将：
+- 自动检测服务器IP和UUID
+- 生成适用于多种客户端的配置文件
+- 创建易于分享的VLESS链接
+
+### 3. 高级TLS连接测试 (需要Node.js)
+
+如果您安装了Node.js，可以运行高级TLS连接测试，验证TLS握手和证书：
+
+```bash
+node test-connectivity.js [hostname] [port] [sni]
+```
+
+或者直接运行：
+
+```bash
+./test-connectivity.js
+```
+
+这将提供详细的TLS连接信息和证书验证结果。
 
 ## 客户端配置
 
@@ -91,6 +145,28 @@ docker logs vless-server
 - 流控: xtls-rprx-vision
 - 安全性: TLS
 - 网络: TCP
+- SNI: 默认为服务器主机名，可通过 `certs/sni.txt` 自定义
+
+## SNI 设置说明
+
+SNI (Server Name Indication) 是 TLS 协议的扩展，允许客户端在 TLS 握手阶段指定它要连接的服务器域名。正确配置 SNI 对于 VLESS 协议非常重要。
+
+### 为什么需要 SNI
+
+1. **绕过封锁**: 某些网络环境可能会根据 SNI 进行流量检测和阻断
+2. **证书验证**: 确保客户端和服务器使用相同的域名进行 TLS 握手
+3. **多域名共存**: 在同一 IP 上托管多个 HTTPS 服务
+
+### 如何配置 SNI
+
+1. **服务器端**:
+   - 默认使用服务器主机名
+   - 通过 `certs/sni.txt` 文件自定义
+   - 生成的证书会使用此 SNI 值作为 Common Name
+
+2. **客户端**:
+   - 使用 `generate_client_config.sh` 脚本生成的配置会自动包含正确的 SNI
+   - 手动配置时需要将 SNI 设置为与服务器相同的值
 
 ## 支持的客户端应用
 
@@ -106,6 +182,7 @@ docker logs vless-server
 
 1. 将您的证书放在 `certs/server.crt`
 2. 将您的密钥放在 `certs/server.key`
+3. 确保您的 SNI 设置 (`certs/sni.txt`) 与证书的域名一致
 
 然后重新启动容器:
 
@@ -140,4 +217,5 @@ echo "your-custom-uuid-here" > certs/uuid.txt
 ## 注意事项
 
 - 这个设置使用了自签名的 SSL 证书。对于生产环境，建议使用来自受信任的 CA 的证书。
-- 首次连接可能会收到证书警告，因为使用了自签名证书。 
+- 首次连接可能会收到证书警告，因为使用了自签名证书。
+- 确保客户端的 SNI 设置与服务器匹配，否则可能导致连接失败。 
