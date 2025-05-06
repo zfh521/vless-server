@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            VLESS Server Docker Image Release ${{ github.ref }}
+            
+            ## 如何使用
+            
+            ```bash
+            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            ```
+            
+            或在docker-compose.yml中引用：
+            
+            ```yaml
+            services:
+              vless-server:
+                image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+                ports:
+                  - "443:443" 
+                volumes:
+                  - ./certs:/etc/xray
+            ```
+            
+            详细使用方法请参考README.md
+          draft: false
+          prerelease: false 

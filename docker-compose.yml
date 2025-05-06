@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  vless-server:
+    build: .
+    container_name: vless-server
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/etc/xray
+    environment:
+      - TZ=UTC 
